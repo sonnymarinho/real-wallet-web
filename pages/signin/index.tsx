@@ -4,7 +4,67 @@ import { NextPage } from 'next';
 import Input from '../../components/input';
 import Button from '../../components/button';
 
+import { useForm } from 'react-hook-form';
+import { useMutation } from '@apollo/client';
+import gql from 'graphql-tag';
+import { toast } from 'react-toastify';
+import { STORAGE_KEY } from '../../config/constants';
+import { useAuth } from '../../hooks/auth';
+
+interface AuthUser {
+  authUser: {
+    access_token: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  };
+}
+
+const AUTH_MUTATION = gql`
+  mutation {
+    authUser(createUserInput: { email: "email27@domain.com", password: "123456" }) {
+      user {
+        id
+        name
+        email
+      }
+      access_token
+    }
+  }
+`;
+
 export const SignIn: NextPage = () => {
+  const { handleSubmit } = useForm();
+  const { setToken, getToken } = useAuth();
+
+  const [authMutate, { data }] = useMutation<AuthUser>(AUTH_MUTATION);
+
+  const token = getToken();
+
+  console.log('token: ', token);
+
+  const handleSubmitForm = (data: any) => {
+    const signin = async () => {
+      try {
+        const { data } = await authMutate();
+
+        const token = data?.authUser.access_token as string;
+
+        setToken(token);
+
+        toast.info('success');
+      } catch (error) {
+        debugger;
+        console.error(error);
+        toast.error(`Erro at sign in: ${error}`);
+      }
+    };
+
+    signin();
+  };
+
   return (
     <div className="flex bg-black h-screen w-screen">
       <div className="bg-white w-1/2 h-screen rounded-r-3xl">
@@ -24,9 +84,9 @@ export const SignIn: NextPage = () => {
       <div className="flex items-center justify-center w-1/2 h-full">
         <div className="flex flex-col w-full max-w-sm">
           <h3 className="text-white text-6xl mb-14">sign in</h3>
-          <form className="flex flex-col" action="">
-            <Input type="email" label="email" />
-            <Input type="password" label="password" />
+          <form className="flex flex-col" onSubmit={handleSubmit(handleSubmitForm)}>
+            <Input name="email" type="email" label="email" />
+            <Input name="password" type="password" label="password" />
             <div className="flex mt-10">
               <Button className="w-full mr-2" secondary>
                 forgot password
