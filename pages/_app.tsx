@@ -2,7 +2,7 @@ import React from 'react';
 import type { AppProps } from 'next/app';
 
 import 'tailwindcss/tailwind.css';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { ApolloClient, ApolloProvider, concat, HttpLink, InMemoryCache } from '@apollo/client';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,19 +35,19 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ApolloProvider client={client}>
       <ToastContainer
         position="top-right"
-        autoClose={3000}
+        autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
-        draggable={false}
+        draggable
         pauseOnHover
+        theme="dark"
       />
       <AuthProvider>
         <Component {...pageProps} />
       </AuthProvider>
-      <ToastContainer />
     </ApolloProvider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { STORAGE_KEY } from '../config/constants';
 
 interface AuthContextData {
@@ -10,17 +10,9 @@ interface AuthContextData {
 const AuthContext = createContext({} as AuthContextData);
 
 const AuthProvider: React.FC = ({ children }) => {
-  const onServer = typeof window === 'undefined';
-
-  const { setToken, getToken, clearToken } = {
-    setToken: (value: string): void => {
-      onServer ? {} : localStorage.setItem(STORAGE_KEY.TOKEN, value);
-    },
-    getToken: (): string => (onServer ? '' : localStorage.getItem(STORAGE_KEY.TOKEN) || ''),
-    clearToken: (): void => {
-      onServer ? {} : localStorage.removeItem(STORAGE_KEY.TOKEN);
-    },
-  };
+  const getToken = (): string => localStorage.getItem(STORAGE_KEY.TOKEN) || '';
+  const setToken = (value: string): void => localStorage.setItem(STORAGE_KEY.TOKEN, value);
+  const clearToken = (): void => localStorage.removeItem(STORAGE_KEY.TOKEN);
 
   return (
     <AuthContext.Provider value={{ setToken, getToken, clearToken }}>
